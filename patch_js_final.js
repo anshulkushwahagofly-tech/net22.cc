@@ -16,8 +16,8 @@ js = js.replace(/\/api\/catalog\/discover\?type=movie&genre=10751&sort=popularit
 // 4. Patch search API
 js = js.replace(/\/api\/catalog\/search-hybrid\?q=\$\{[^\}]+\}/g, './api/catalog/search.json');
 
-// 5. Patch title/rail endpoints (these are dynamic, we'll just fall back to trending data to avoid errors)
-js = js.replace(/\/api\/catalog\/title\/\$\{t\}\/\$\{e\}/g, './api/catalog/curated/trending.json');
+// 5. Patch title/rail endpoints (these are dynamic, we'll fall back to the generic title fallback to avoid errors when clicking a movie)
+js = js.replace(/\/api\/catalog\/title\/\$\{t\}\/\$\{e\}/g, './api/catalog/title/fallback.json');
 
 fs.writeFileSync(jsPath, js, 'utf8');
 console.log('JS fully patched for static deployment');

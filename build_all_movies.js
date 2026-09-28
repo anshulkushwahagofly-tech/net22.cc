@@ -9,7 +9,7 @@ function addMovie(item) {
     if (!item || !item.tmdbId) return;
     const id = String(item.tmdbId);
     if (!allMovies[id]) {
-        allMovies[id] = {
+        let movieObj = {
             ok: true,
             type: item.type || "movie",
             title: item.title,
@@ -25,10 +25,20 @@ function addMovie(item) {
                 subjectId: id
             }
         };
+        
+        // Add fake seasons for TV shows!
+        if (movieObj.type === "tv") {
+            movieObj.seasons = [
+                { season: 1, episodeCount: 10 },
+                { season: 2, episodeCount: 10 }
+            ];
+            movieObj.initialSeason = 1;
+        }
+        
+        allMovies[id] = movieObj;
     }
 }
 
-// Read all curated files
 for (const file of files) {
     if (!file.endsWith('.json')) continue;
     const data = JSON.parse(fs.readFileSync(path.join(curatedDir, file), 'utf8'));
@@ -40,11 +50,9 @@ for (const file of files) {
     }
 }
 
-// Read search.json
 const searchData = JSON.parse(fs.readFileSync('api/catalog/search.json', 'utf8'));
 if (searchData.items) searchData.items.forEach(addMovie);
 
-// Read heroes
 const heroPaths = ['api/catalog/hero.json', 'api/catalog/hero_kdrama.json'];
 for (const hp of heroPaths) {
     if (fs.existsSync(hp)) {
@@ -53,12 +61,5 @@ for (const hp of heroPaths) {
     }
 }
 
-// Read discover
-const discoverPath = 'api/catalog/discover_kids.json';
-if (fs.existsSync(discoverPath)) {
-    const dData = JSON.parse(fs.readFileSync(discoverPath, 'utf8'));
-    if (dData.items) dData.items.forEach(addMovie);
-}
-
 fs.writeFileSync('api/catalog/title/all_movies.json', JSON.stringify(allMovies), 'utf8');
-console.log('Created all_movies.json with ' + Object.keys(allMovies).length + ' movies.');
+console.log('Updated all_movies.json with fake seasons for TV shows.');
